@@ -1,4 +1,4 @@
-package com.lalynk.lalynk_backend;
+package com.lalynk.lalynk_backend.users;
 
 import java.time.Instant;
 import java.util.UUID;

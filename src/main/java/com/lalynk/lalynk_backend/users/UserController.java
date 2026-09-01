@@ -1,4 +1,4 @@
-package com.lalynk.lalynk_backend;
+package com.lalynk.lalynk_backend.users;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

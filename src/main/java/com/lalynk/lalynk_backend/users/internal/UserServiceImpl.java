@@ -1,12 +1,14 @@
 package com.lalynk.lalynk_backend.users.internal;
 
-import com.lalynk.lalynk_backend.CreateUserRequest;
-import com.lalynk.lalynk_backend.IUserService;
-import com.lalynk.lalynk_backend.UserDTO;
+import com.lalynk.lalynk_backend.users.CreateUserRequest;
+import com.lalynk.lalynk_backend.users.IUserService;
+import com.lalynk.lalynk_backend.users.UserDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements IUserService {
@@ -34,6 +36,11 @@ public class UserServiceImpl implements IUserService {
             userDTOs.add(new UserDTO(u.getId(), u.getEmail(), u.getCreatedAt()));
         }
         return userDTOs;
+    }
+
+    @Override
+    public boolean doesExist(UUID userId) {
+        return userRepository.existsById(userId);
     }
 
 
