@@ -15,14 +15,15 @@ public class User {
 
     private String email;
 
-    private String password;
+    @Column(name = "password_hash")
+    private String passwordHash;
 
     @Column(name = "created_at")
     private Instant createdAt;
 
-    public User(String email, String password) {
+    public User(String email, String passwordHash) {
         this.email = email;
-        this.password = password;
+        this.passwordHash = passwordHash;
         this.createdAt = Instant.now();
     }
 
@@ -40,8 +41,8 @@ public class User {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
     public Instant getCreatedAt() {
