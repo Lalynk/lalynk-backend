@@ -1,6 +1,7 @@
 package com.lalynk.lalynk_backend.users;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +24,11 @@ public class UserController {
     @GetMapping("")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping("/me")
+    public Object me(Authentication authentication) {
+        return authentication.getPrincipal();
     }
 
 
