@@ -1,10 +1,9 @@
 package com.lalynk.lalynk_backend.users.internal;
 
-import com.lalynk.lalynk_backend.users.CreateUserRequest;
 import com.lalynk.lalynk_backend.users.IUserService;
 import com.lalynk.lalynk_backend.users.UserDTO;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,11 +22,12 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public UserDTO createUser(CreateUserRequest createUserRequest, Authentication authentication) {
+    public UserDTO createUser(Authentication authentication) {
 
         String auth0Subject = authentication.getName();
 
-        User user = new User(createUserRequest.email(), auth0Subject);
+        String email = ((JwtAuthenticationToken) authentication).getToken().getClaimAsString("https://api.lalynk.com/email");
+        User user = new User(email, auth0Subject);
         User saved = userRepository.save(user);
         return new UserDTO(saved.getId(),saved.getEmail(), saved.getCreatedAt());
     }

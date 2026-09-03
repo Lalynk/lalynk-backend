@@ -18,8 +18,8 @@ public class UserController {
     }
 
     @PostMapping("")
-    public ResponseEntity<UserDTO> createUser(@RequestBody CreateUserRequest createUserRequest, Authentication authentication) {
-        return new ResponseEntity<>(userService.createUser(createUserRequest, authentication), HttpStatus.CREATED);
+    public ResponseEntity<UserDTO> createUser(Authentication authentication) {
+        return new ResponseEntity<>(userService.createUser(authentication), HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasAuthority('users:read')")

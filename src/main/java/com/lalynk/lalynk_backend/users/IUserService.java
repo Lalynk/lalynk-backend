@@ -7,10 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface IUserService {
-
-    UserDTO createUser(CreateUserRequest userRequest, Authentication authentication);
+    UserDTO createUser(Authentication authentication);
     List<UserDTO> getAllUsers();
     boolean doesExist(UUID userId);
-
-
 }
