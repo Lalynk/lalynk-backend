@@ -1,6 +1,7 @@
 package com.lalynk.lalynk_backend.users.internal;
 
 import com.lalynk.lalynk_backend.users.IUserService;
+import com.lalynk.lalynk_backend.users.UserAlreadyExistsException;
 import com.lalynk.lalynk_backend.users.UserDTO;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -26,7 +27,12 @@ public class UserServiceImpl implements IUserService {
 
         String auth0Subject = authentication.getName();
 
+        if(userRepository.existsByAuth0Subject(auth0Subject)) throw new UserAlreadyExistsException();
+
         String email = ((JwtAuthenticationToken) authentication).getToken().getClaimAsString("https://api.lalynk.com/email");
+
+
+
         User user = new User(email, auth0Subject);
         User saved = userRepository.save(user);
         return new UserDTO(saved.getId(),saved.getEmail(), saved.getCreatedAt());

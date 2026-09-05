@@ -15,7 +15,7 @@ public class User {
 
     private String email;
 
-    @Column(name = "auth0_subject")
+    @Column(name = "auth0_subject", unique = true, nullable = false)
     private String auth0Subject;
 
     @Column(name = "created_at")

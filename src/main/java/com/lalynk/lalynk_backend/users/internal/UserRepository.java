@@ -8,4 +8,6 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, UUID>
 {
     Optional<User> findByAuth0Subject(String auth0Subject);
+
+    boolean existsByAuth0Subject(String auth0Subject);
 }
