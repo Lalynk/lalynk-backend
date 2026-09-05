@@ -10,4 +10,5 @@ public interface IUserService {
     UserDTO createUser(Authentication authentication);
     List<UserDTO> getAllUsers();
     boolean doesExist(UUID userId);
+    UserDTO getCurrentUser(Authentication authentication);
 }
