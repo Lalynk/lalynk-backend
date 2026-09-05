@@ -44,9 +44,11 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public boolean doesExist(UUID userId) {
-        return userRepository.existsById(userId);
+    public UUID findUserIdBySubject(String auth0Subject) {
+        User user = userRepository.findByAuth0Subject(auth0Subject).orElseThrow(() -> new UserNotFoundException());
+        return user.getId();
     }
+
 
     @Override
     public UserDTO getCurrentUser(Authentication authentication) {

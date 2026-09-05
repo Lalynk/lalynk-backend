@@ -1,6 +1,7 @@
 package com.lalynk.lalynk_backend.shared;
 
 
+import com.lalynk.lalynk_backend.secrets.SecretNotFoundException;
 import com.lalynk.lalynk_backend.users.UserAlreadyExistsException;
 
 import com.lalynk.lalynk_backend.users.UserNotFoundException;
@@ -21,6 +22,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFound() {
         return new ResponseEntity<>(new ErrorResponse("User not found"), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(SecretNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleSecretNotFound() {
+        return new ResponseEntity<>(new ErrorResponse("Secret not found"), HttpStatus.NOT_FOUND);
     }
 
 
