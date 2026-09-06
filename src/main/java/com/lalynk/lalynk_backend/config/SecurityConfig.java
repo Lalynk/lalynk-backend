@@ -15,7 +15,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-    http.authorizeHttpRequests(authorize ->
+    http.cors(Customizer.withDefaults()).authorizeHttpRequests(authorize ->
             authorize.requestMatchers("/secrets/public/**").permitAll().anyRequest().authenticated())
             .oauth2ResourceServer(oauth2 ->
                     oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
