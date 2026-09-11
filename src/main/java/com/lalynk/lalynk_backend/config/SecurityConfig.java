@@ -16,25 +16,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
     http.cors(Customizer.withDefaults()).authorizeHttpRequests(authorize ->
-            authorize.requestMatchers("/secrets/public/**").permitAll().anyRequest().authenticated())
-            .oauth2ResourceServer(oauth2 ->
-                    oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
+            authorize.requestMatchers("/secrets/public/**", "/auth/me", "/auth/login").permitAll().anyRequest().authenticated())
+            .oauth2Login(oauth2 -> oauth2.defaultSuccessUrl("http://localhost:5173"));
 
     return http.build();
 }
 
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter authoritiesConverter = new JwtGrantedAuthoritiesConverter();
 
-        authoritiesConverter.setAuthoritiesClaimName("permissions");
-        authoritiesConverter.setAuthorityPrefix("");
-
-        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
-        return converter;
-
-    }
 
 
 
