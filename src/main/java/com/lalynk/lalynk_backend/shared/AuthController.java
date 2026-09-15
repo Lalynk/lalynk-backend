@@ -2,8 +2,8 @@ package com.lalynk.lalynk_backend.shared;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -17,7 +17,6 @@ public class AuthController {
         return "redirect:/oauth2/authorization/auth0";
     }
 
-
     @GetMapping("/me")
     @ResponseBody
     public AuthDTO getUser(Authentication authentication) {
@@ -26,8 +25,16 @@ public class AuthController {
         }
         OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
         return new AuthDTO(true, oidcUser.getSubject(), oidcUser.getEmail());
-
     }
+
+    @GetMapping("/csrf")
+    @ResponseBody
+    public CsrfToken csrf(CsrfToken csrfToken) {
+        return csrfToken;
+    }
+
+    
+
 
 
 }
