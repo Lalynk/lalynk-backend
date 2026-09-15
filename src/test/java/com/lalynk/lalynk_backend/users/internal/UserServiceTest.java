@@ -27,18 +27,5 @@ public class UserServiceTest {
         userService = new UserServiceImpl(userRepository);
     }
 
-    @Test
-    void shouldGetCurrentUser() {
-
-        String auth0Subject = "abc123";
-        User user = new User("test@gmail.com", "abc123");
-        when(userRepository.findByAuth0Subject(auth0Subject)).thenReturn(Optional.of(user));
-
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(authentication.getName()).thenReturn(auth0Subject);
-
-        UserDTO userDTO = userService.getCurrentUser(authentication);
-        assertEquals("test@gmail.com", userDTO.email());
-    }
 
 }

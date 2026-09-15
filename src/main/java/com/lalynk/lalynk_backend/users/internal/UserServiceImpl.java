@@ -5,6 +5,7 @@ import com.lalynk.lalynk_backend.users.UserAlreadyExistsException;
 import com.lalynk.lalynk_backend.users.UserDTO;
 import com.lalynk.lalynk_backend.users.UserNotFoundException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
@@ -24,16 +25,6 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public UserDTO createUser(Authentication authentication) {
-        String auth0Subject = authentication.getName();
-        if(userRepository.existsByAuth0Subject(auth0Subject)) throw new UserAlreadyExistsException();
-        String email = ((JwtAuthenticationToken) authentication).getToken().getClaimAsString("https://api.lalynk.com/email");
-        User user = new User(email, auth0Subject);
-        User saved = userRepository.save(user);
-        return new UserDTO(saved.getId(),saved.getEmail(), saved.getCreatedAt());
-    }
-
-    @Override
     public List<UserDTO> getAllUsers() {
         List<UserDTO> userDTOs = new ArrayList<>();
         List<User> users = userRepository.findAll();
@@ -49,13 +40,13 @@ public class UserServiceImpl implements IUserService {
         return user.getId();
     }
 
-
     @Override
-    public UserDTO getCurrentUser(Authentication authentication) {
-        String auth0Subject = authentication.getName();
-        User user = userRepository.findByAuth0Subject(auth0Subject).orElseThrow(() -> new UserNotFoundException());
-        return new UserDTO(user.getId(), user.getEmail(), user.getCreatedAt());
-
+    public void getOrCreateUser(String auth0Subject, String email) {
+        if(userRepository.existsByAuth0Subject(auth0Subject)) {
+            return;
+        }
+        User user = new User(email, auth0Subject);
+        userRepository.save(user);
     }
 
 

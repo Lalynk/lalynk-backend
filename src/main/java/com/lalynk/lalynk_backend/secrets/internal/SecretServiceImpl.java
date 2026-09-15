@@ -1,11 +1,8 @@
 package com.lalynk.lalynk_backend.secrets.internal;
 import com.lalynk.lalynk_backend.secrets.*;
 import com.lalynk.lalynk_backend.users.IUserService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -40,7 +37,7 @@ public class SecretServiceImpl implements ISecretService {
         List<SecretDTO> secretDTOS = new ArrayList<>();
         String auth0Subject = authentication.getName();
         UUID userId = iuserService.findUserIdBySubject(auth0Subject);
-        List<Secret> secrets = secretRepository.findByUserId(userId);
+        List<Secret> secrets = secretRepository.findByUserIdOrderByCreatedAtDesc(userId);
         for(Secret s: secrets) {
             secretDTOS.add(new SecretDTO(s.getId(), s.getCreatedAt(),s.getExpiresAt(), s.getConsumedAt(), s.getRevokedAt(), s.getContent(),s.getPublicToken()));
         }
