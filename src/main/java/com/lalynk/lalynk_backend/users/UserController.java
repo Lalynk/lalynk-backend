@@ -17,21 +17,10 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("")
-    public ResponseEntity<UserDTO> createUser(Authentication authentication) {
-        return new ResponseEntity<>(userService.createUser(authentication), HttpStatus.CREATED);
-    }
-
     @PreAuthorize("hasAuthority('users:read')")
     @GetMapping("")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.ACCEPTED);
     }
-
-    @GetMapping("/me")
-    public ResponseEntity<UserDTO> getCurrentUser(Authentication authentication) {
-        return new ResponseEntity<>(userService.getCurrentUser(authentication), HttpStatus.OK);
-    }
-
 
 }
