@@ -1,6 +1,7 @@
 package com.lalynk.lalynk_backend.secrets.internal;
 import com.lalynk.lalynk_backend.secrets.*;
 import com.lalynk.lalynk_backend.users.IUserService;
+import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -64,12 +65,15 @@ public class SecretServiceImpl implements ISecretService {
         secretRepository.save(secret);
     }
 
+    @Transactional
     @Override
     public PublicSecretDTO openSecret(String publicToken) {
+        int consumed = secretRepository.consumeIfAvailable(publicToken);
+        if(consumed==0) {
+            throw new SecretNotFoundException();
+        }
         Secret secret = secretRepository.findByPublicToken(publicToken).orElseThrow(() -> new SecretNotFoundException());
-        if(secret.getRevokedAt() != null || (secret.getExpiresAt() != null && secret.getExpiresAt().isBefore(Instant.now())) || secret.getConsumedAt() != null) throw new SecretNotFoundException();
-        secret.consume();
-        secretRepository.save(secret);
+
         return new PublicSecretDTO(secret.getContent());
     }
 
