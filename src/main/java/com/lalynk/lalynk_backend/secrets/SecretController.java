@@ -2,6 +2,7 @@ package com.lalynk.lalynk_backend.secrets;
 
 
 import com.lalynk.lalynk_backend.secrets.internal.Secret;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,7 +22,7 @@ public class SecretController {
     }
 
     @PostMapping("")
-    public ResponseEntity<SecretDTO> createSecret(@RequestBody CreateSecretRequest secretRequest, Authentication authentication) {
+    public ResponseEntity<SecretDTO> createSecret(@Valid @RequestBody CreateSecretRequest secretRequest, Authentication authentication) {
         return new ResponseEntity<>(iSecretService.createSecret(secretRequest, authentication), HttpStatus.CREATED);
     }
 
