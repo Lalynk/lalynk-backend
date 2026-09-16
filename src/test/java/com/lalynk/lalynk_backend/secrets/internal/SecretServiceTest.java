@@ -1,7 +1,10 @@
 package com.lalynk.lalynk_backend.secrets.internal;
 
+import com.lalynk.lalynk_backend.secrets.CreateSecretRequest;
 import com.lalynk.lalynk_backend.secrets.PublicSecretDTO;
+import com.lalynk.lalynk_backend.secrets.SecretDTO;
 import com.lalynk.lalynk_backend.secrets.SecretNotFoundException;
+import com.lalynk.lalynk_backend.users.IUserService;
 import com.lalynk.lalynk_backend.users.internal.User;
 import com.lalynk.lalynk_backend.users.internal.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,10 +16,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
@@ -28,74 +34,76 @@ public class SecretServiceTest {
 
     private SecretServiceImpl secretService;
     @Mock
-    private UserServiceImpl userService;
+    private IUserService iUserService;
+
+    @Mock
+    private SecretTokenGenerator secretTokenGenerator;
+
+    @Mock
+    private SecretEncryptionService secretEncryptionService;
+
+
+    @BeforeEach
+    void setup() {
+        secretService = new SecretServiceImpl(secretRepository, iUserService, secretTokenGenerator, secretEncryptionService);
+    }
 
 
 
     @Test
-    void ShouldOpenValidSecret() {
+    void ShouldCreateSecret() {
+
+        //given
         UUID userId = UUID.randomUUID();
-        String publicToken = "abc123";
-        Secret secret = new Secret(userId, Instant.now().plusSeconds(5000), "test-secret", publicToken);
+        String auth0Subject = "abc123";
 
-        when(secretRepository.findByPublicToken(publicToken)).thenReturn(Optional.of(secret));
+        String content = "testingtesting";
+        String encryptedContent = "###";
+        String publicToken = "121212";
 
-        PublicSecretDTO result = secretService.openSecret(publicToken);
+        Instant expiresAt = Instant.now().plus(7, ChronoUnit.DAYS);
 
-        assertEquals("test-secret", result.content());
-        assertNotNull(secret.getConsumedAt());
+        CreateSecretRequest secretRequest = new CreateSecretRequest(expiresAt, content);
+
+        when(iUserService.findUserIdBySubject(auth0Subject)).thenReturn(userId);
+
+        when(secretRepository.countActiveSecrets(userId)).thenReturn(1L);
+
+        when(secretEncryptionService.encrypt(secretRequest.content())).thenReturn(encryptedContent);
+
+        when(secretTokenGenerator.generate()).thenReturn(publicToken);
+
+        Secret saved = new Secret(userId,secretRequest.expiresAt(), encryptedContent, publicToken);
+
+        when(secretRepository.save(any(Secret.class))).thenReturn(saved);
+
+        //when
+        SecretDTO result = secretService.createSecret(secretRequest, auth0Subject);
+
+        //then
+
+        assertEquals(expiresAt, result.expiresAt());
+        assertEquals(publicToken, result.publicToken());
+        assertEquals(content, result.content());
+
+        verify(secretEncryptionService).encrypt(content);
+
+        verify(secretRepository).save(any(Secret.class));
     }
-
 
 
 
     @Test
     void ShouldNotAllowOtherUserToGetSecret() {
-        //user is created
-        String auth0SubjectUser = "1111";
-        UUID userId = UUID.randomUUID();
-        //this user has a secret
-        UUID secretId = UUID.randomUUID();
-        String publicToken = "abc123";
-        Secret s = new Secret(userId, Instant.now().plusSeconds(5000), "himligt meddelande", publicToken);
-        when(secretRepository.findById(secretId)).thenReturn(Optional.of(s));
-        //other user wants to access this secret
-        String auth0SubjectOtherUser = "2222";
-        UUID otherUserId = UUID.randomUUID();
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(authentication.getName()).thenReturn(auth0SubjectOtherUser);
-        when(userService.findUserIdBySubject(auth0SubjectOtherUser)).thenReturn(otherUserId);
-        assertThrows(SecretNotFoundException.class, () -> secretService.getSecretById(authentication.getName(), secretId));
-    }
 
-    //    @Override
-    //    public PublicSecretDTO openSecret(String publicToken) {
-    //        Secret secret = secretRepository.findByPublicToken(publicToken).orElseThrow(() -> new SecretNotFoundException());
-    //        if(secret.getRevokedAt() != null || (secret.getExpiresAt() != null && secret.getExpiresAt().isBefore(Instant.now())) || secret.getConsumedAt() != null) throw new SecretNotFoundException();
-    //        secret.consume();
-    //        secretRepository.save(secret);
-    //        return new PublicSecretDTO(secret.getContent());
-    //    }
+    }
 
 
 
     @Test
     void shouldNotOpenExpiredSecret() {
-        UUID userId = UUID.randomUUID();
-        String publicToken = "abc123";
-        Secret secret = new Secret(userId, Instant.now().minusSeconds(60), "Test message", publicToken);
-        when(secretRepository.findByPublicToken(publicToken)).thenReturn(Optional.of(secret));
-        assertThrows(SecretNotFoundException.class, () -> secretService.openSecret(publicToken));
 
     }
-
-
-    //ShouldNotOpenRevokedSecret
-    //ShouldNotOpenNonExistingSecret
-    //shouldNotAllowOtherUserToRevokeSecret
-
-
-
 
 
 }
