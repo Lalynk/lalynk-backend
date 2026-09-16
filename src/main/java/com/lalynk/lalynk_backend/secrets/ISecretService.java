@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface ISecretService {
     SecretDTO createSecret(CreateSecretRequest request, Authentication authentication);
-    List<SecretDTO> getMySecrets(Authentication authentication);
+    List<SecretSummaryDTO> getMySecrets(Authentication authentication);
     SecretDTO getSecretById(Authentication authentication, UUID secretId);
     void revokeSecret(Authentication authentication, UUID secretId);
     PublicSecretDTO openSecret(String publicToken);

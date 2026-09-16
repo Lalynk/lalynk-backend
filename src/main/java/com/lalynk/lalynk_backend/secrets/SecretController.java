@@ -27,7 +27,7 @@ public class SecretController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<SecretDTO>> getMySecrets(Authentication authentication) {
+    public ResponseEntity<List<SecretSummaryDTO>> getMySecrets(Authentication authentication) {
         return new ResponseEntity<>(iSecretService.getMySecrets(authentication), HttpStatus.OK);
     }
 

@@ -37,16 +37,15 @@ public class SecretServiceImpl implements ISecretService {
     }
 
     @Override
-    public List<SecretDTO> getMySecrets(Authentication authentication) {
-        List<SecretDTO> secretDTOS = new ArrayList<>();
+    public List<SecretSummaryDTO> getMySecrets(Authentication authentication) {
+        List<SecretSummaryDTO> secretSummaryDTOS = new ArrayList<>();
         String auth0Subject = authentication.getName();
         UUID userId = iuserService.findUserIdBySubject(auth0Subject);
         List<Secret> secrets = secretRepository.findByUserIdOrderByCreatedAtDesc(userId);
         for(Secret s: secrets) {
-            String decryptedContent = secretEncryptionService.decrypt(s.getContent());
-            secretDTOS.add(new SecretDTO(s.getId(), s.getCreatedAt(),s.getExpiresAt(), s.getConsumedAt(), s.getRevokedAt(), decryptedContent,s.getPublicToken()));
+            secretSummaryDTOS.add(new SecretSummaryDTO(s.getId(), s.getCreatedAt(), s.getExpiresAt(), s.getConsumedAt(), s.getRevokedAt(), s.getPublicToken()));
         }
-        return secretDTOS;
+        return secretSummaryDTOS;
     }
 
     @Override

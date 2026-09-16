@@ -15,7 +15,6 @@ public class SecretEncryptionService {
 
     public SecretEncryptionService(@Value("${secret.encryption.key}") String key) {
         byte[] keyBytes = Base64.getDecoder().decode(key);
-
         if(keyBytes.length != 32) throw new IllegalArgumentException("Secret encryption key must be 32 bytes");
 
         SecretKeySpec secretKey = new SecretKeySpec(keyBytes, "AES");
