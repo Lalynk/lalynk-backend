@@ -26,7 +26,7 @@ public class Secret {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    @Column(name = "expires_at")
+    @Column(name = "expires_at", nullable = false)
     private Instant expiresAt;
 
     @Column(name = "consumed_at")
@@ -49,14 +49,6 @@ public class Secret {
 
     public UUID getId() {
         return id;
-    }
-
-    public void consume(){
-        this.consumedAt = Instant.now();
-    }
-
-    public void revoke() {
-        this.revokedAt = Instant.now();
     }
 
     public UUID getUserId() {

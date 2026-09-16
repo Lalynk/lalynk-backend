@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private IUserService iUserService;
+    private final IUserService iUserService;
 
     protected AuthController(IUserService iUserService) {
         this.iUserService = iUserService;

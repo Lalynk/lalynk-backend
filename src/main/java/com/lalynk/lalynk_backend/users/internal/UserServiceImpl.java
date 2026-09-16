@@ -1,12 +1,9 @@
 package com.lalynk.lalynk_backend.users.internal;
 
 import com.lalynk.lalynk_backend.users.IUserService;
-import com.lalynk.lalynk_backend.users.UserAlreadyExistsException;
 import com.lalynk.lalynk_backend.users.UserDTO;
 import com.lalynk.lalynk_backend.users.UserNotFoundException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,7 +14,7 @@ import java.util.UUID;
 @Service
 public class UserServiceImpl implements IUserService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;

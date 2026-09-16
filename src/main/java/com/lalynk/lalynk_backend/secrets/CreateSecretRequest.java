@@ -1,7 +1,10 @@
 package com.lalynk.lalynk_backend.secrets;
 
-import java.time.Instant;
-import java.util.UUID;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
-public record CreateSecretRequest(Instant expiresAt, String content) {
+import java.time.Instant;
+
+public record CreateSecretRequest(@Future Instant expiresAt, @Size(max = 10_000) @NotBlank String content) {
 }
