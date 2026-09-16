@@ -37,4 +37,14 @@ public interface SecretRepository extends JpaRepository<Secret, UUID> {
     """)
     int revokeIfAvailable(@Param("secretId") UUID secretId, @Param("userId") UUID userId);
 
+    @Query("""
+    SELECT COUNT(s)
+    FROM Secret s
+    WHERE s.userId = :userId
+      AND s.consumedAt IS NULL
+      AND s.revokedAt IS NULL
+      AND s.expiresAt > CURRENT_TIMESTAMP
+""")
+    long countActiveSecrets(@Param("userId") UUID userId);
+
 }

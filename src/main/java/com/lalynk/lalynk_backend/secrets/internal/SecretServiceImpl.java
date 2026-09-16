@@ -21,6 +21,7 @@ public class SecretServiceImpl implements ISecretService {
 
     private static final long DEFAULT_EXPIRATION_DAYS = 7;
     private static final long MAX_EXPIRATION_DAYS = 30;
+    private static final long MAX_ACTIVE_SECRETS = 100;
 
     public SecretServiceImpl(SecretRepository secretRepository, IUserService iUserService, SecretTokenGenerator secretTokenGenerator, SecretEncryptionService secretEncryptionService){
         this.iuserService = iUserService;
@@ -38,10 +39,16 @@ public class SecretServiceImpl implements ISecretService {
         }
 
         if(expiresAt.isAfter(Instant.now().plus(MAX_EXPIRATION_DAYS, ChronoUnit.DAYS))) {
-            throw new IllegalArgumentException("Secret cannot expire mote than 30 days from now");
+            throw new InvalidExpirationException();
         }
 
         UUID userId = iuserService.findUserIdBySubject(auth0Subject);
+
+        long activeSecrets = secretRepository.countActiveSecrets(userId);
+        if(activeSecrets>= MAX_ACTIVE_SECRETS) {
+            throw new SecretLimitExceededException();
+        }
+
         String encryptedContent = secretEncryptionService.encrypt(secretDTO.content());
         Secret secret = new Secret(userId, expiresAt, encryptedContent, secretTokenGenerator.generate());
         Secret saved = secretRepository.save(secret);

@@ -1,6 +1,9 @@
 package com.lalynk.lalynk_backend.shared;
 
 
+import com.lalynk.lalynk_backend.secrets.InvalidEncryptionKeyException;
+import com.lalynk.lalynk_backend.secrets.InvalidExpirationException;
+import com.lalynk.lalynk_backend.secrets.SecretLimitExceededException;
 import com.lalynk.lalynk_backend.secrets.SecretNotFoundException;
 import com.lalynk.lalynk_backend.users.UserAlreadyExistsException;
 
@@ -27,6 +30,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SecretNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleSecretNotFound() {
         return new ResponseEntity<>(new ErrorResponse("Secret not found"), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(SecretLimitExceededException.class)
+    public ResponseEntity<ErrorResponse> handleSecretLimitExceeded() {
+        return new ResponseEntity<>(new ErrorResponse("Maximum number of active secrets reached"), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(InvalidExpirationException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidExpiration() {
+        return new ResponseEntity<>(new ErrorResponse("Secret expiration cannot exceed 30 days"), HttpStatus.BAD_REQUEST);
     }
 
 

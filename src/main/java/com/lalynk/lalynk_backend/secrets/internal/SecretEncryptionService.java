@@ -1,5 +1,6 @@
 package com.lalynk.lalynk_backend.secrets.internal;
 
+import com.lalynk.lalynk_backend.secrets.InvalidEncryptionKeyException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.encrypt.AesGcmBytesEncryptor;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ public class SecretEncryptionService {
 
     public SecretEncryptionService(@Value("${secret.encryption.key}") String key) {
         byte[] keyBytes = Base64.getDecoder().decode(key);
-        if(keyBytes.length != 32) throw new IllegalArgumentException("Secret encryption key must be 32 bytes");
+        if(keyBytes.length != 32) throw new InvalidEncryptionKeyException("Secret encryption key must be 32 bytes");
 
         SecretKeySpec secretKey = new SecretKeySpec(keyBytes, "AES");
         this.encryptor = AesGcmBytesEncryptor.withSecretKey(secretKey).build();
