@@ -65,7 +65,7 @@ public class SecretServiceTest {
         Authentication authentication = Mockito.mock(Authentication.class);
         when(authentication.getName()).thenReturn(auth0SubjectOtherUser);
         when(userService.findUserIdBySubject(auth0SubjectOtherUser)).thenReturn(otherUserId);
-        assertThrows(SecretNotFoundException.class, () -> secretService.getSecretById(authentication, secretId));
+        assertThrows(SecretNotFoundException.class, () -> secretService.getSecretById(authentication.getName(), secretId));
     }
 
     //    @Override

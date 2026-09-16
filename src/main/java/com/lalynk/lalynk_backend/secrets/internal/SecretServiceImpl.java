@@ -2,10 +2,7 @@ package com.lalynk.lalynk_backend.secrets.internal;
 import com.lalynk.lalynk_backend.secrets.*;
 import com.lalynk.lalynk_backend.users.IUserService;
 import jakarta.transaction.Transactional;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -27,8 +24,7 @@ public class SecretServiceImpl implements ISecretService {
     }
 
     @Override
-    public SecretDTO createSecret(CreateSecretRequest secretDTO, Authentication authentication) {
-        String auth0Subject = authentication.getName();
+    public SecretDTO createSecret(CreateSecretRequest secretDTO, String auth0Subject) {
         UUID userId = iuserService.findUserIdBySubject(auth0Subject);
         String encryptedContent = secretEncryptionService.encrypt(secretDTO.content());
         Secret secret = new Secret(userId, secretDTO.expiresAt(), encryptedContent, secretTokenGenerator.generate());
@@ -37,9 +33,8 @@ public class SecretServiceImpl implements ISecretService {
     }
 
     @Override
-    public List<SecretSummaryDTO> getMySecrets(Authentication authentication) {
+    public List<SecretSummaryDTO> getMySecrets(String auth0Subject) {
         List<SecretSummaryDTO> secretSummaryDTOS = new ArrayList<>();
-        String auth0Subject = authentication.getName();
         UUID userId = iuserService.findUserIdBySubject(auth0Subject);
         List<Secret> secrets = secretRepository.findByUserIdOrderByCreatedAtDesc(userId);
         for(Secret s: secrets) {
@@ -49,9 +44,8 @@ public class SecretServiceImpl implements ISecretService {
     }
 
     @Override
-    public SecretDTO getSecretById(Authentication authentication, UUID secretId) {
+    public SecretDTO getSecretById(String auth0Subject, UUID secretId) {
         Secret secret = secretRepository.findById(secretId).orElseThrow(()-> new SecretNotFoundException());
-        String auth0Subject = authentication.getName();
         UUID userId = iuserService.findUserIdBySubject(auth0Subject);
         if(!secret.getUserId().equals(userId)) throw new SecretNotFoundException();
         String decryptedContent = secretEncryptionService.decrypt(secret.getContent());
@@ -61,8 +55,7 @@ public class SecretServiceImpl implements ISecretService {
 
     @Transactional
     @Override
-    public void revokeSecret(Authentication authentication, UUID secretId) {
-        String auth0Subject = authentication.getName();
+    public void revokeSecret(String auth0Subject, UUID secretId) {
         UUID userId = iuserService.findUserIdBySubject(auth0Subject);
         int revoked = secretRepository.revokeIfAvailable(secretId, userId);
         if(revoked == 0) throw new SecretNotFoundException();
