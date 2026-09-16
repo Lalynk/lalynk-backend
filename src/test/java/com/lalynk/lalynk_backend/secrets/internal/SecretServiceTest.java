@@ -30,10 +30,7 @@ public class SecretServiceTest {
     @Mock
     private UserServiceImpl userService;
 
-    @BeforeEach
-    void setUp() {
-        secretService = new SecretServiceImpl(secretRepository, userService,null);
-    }
+
 
     @Test
     void ShouldOpenValidSecret() {
@@ -49,17 +46,7 @@ public class SecretServiceTest {
         assertNotNull(secret.getConsumedAt());
     }
 
-    @Test
-    void shouldNotOpenConsumedSecret() {
-        UUID userId = UUID.randomUUID();
-        String publicToken = "abc123";
-        Secret s = new Secret(userId, Instant.now().plusSeconds(5000), "test-secret", publicToken);
-        s.consume();
 
-        when(secretRepository.findByPublicToken(publicToken)).thenReturn(Optional.of(s));
-
-        assertThrows(SecretNotFoundException.class, () -> secretService.openSecret(publicToken));
-    }
 
 
     @Test

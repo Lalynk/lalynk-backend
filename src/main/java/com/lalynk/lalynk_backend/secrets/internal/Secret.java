@@ -51,14 +51,6 @@ public class Secret {
         return id;
     }
 
-    public void consume(){
-        this.consumedAt = Instant.now();
-    }
-
-    public void revoke() {
-        this.revokedAt = Instant.now();
-    }
-
     public UUID getUserId() {
         return userId;
     }

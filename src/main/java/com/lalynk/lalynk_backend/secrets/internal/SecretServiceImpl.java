@@ -14,23 +14,26 @@ import java.util.UUID;
 public class SecretServiceImpl implements ISecretService {
 
 
-    private SecretRepository secretRepository;
-    private IUserService iuserService;
-    private SecretTokenGenerator secretTokenGenerator;
+    private final SecretRepository secretRepository;
+    private final IUserService iuserService;
+    private final SecretTokenGenerator secretTokenGenerator;
+    private final SecretEncryptionService secretEncryptionService;
 
-    public SecretServiceImpl(SecretRepository secretRepository, IUserService iUserService, SecretTokenGenerator secretTokenGenerator){
+    public SecretServiceImpl(SecretRepository secretRepository, IUserService iUserService, SecretTokenGenerator secretTokenGenerator, SecretEncryptionService secretEncryptionService){
         this.iuserService = iUserService;
         this.secretRepository = secretRepository;
         this.secretTokenGenerator = secretTokenGenerator;
+        this.secretEncryptionService = secretEncryptionService;
     }
 
     @Override
     public SecretDTO createSecret(CreateSecretRequest secretDTO, Authentication authentication) {
         String auth0Subject = authentication.getName();
         UUID userId = iuserService.findUserIdBySubject(auth0Subject);
-        Secret secret = new Secret(userId, secretDTO.expiresAt(), secretDTO.content(), secretTokenGenerator.generate());
+        String encryptedContent = secretEncryptionService.encrypt(secretDTO.content());
+        Secret secret = new Secret(userId, secretDTO.expiresAt(), encryptedContent, secretTokenGenerator.generate());
         Secret saved = secretRepository.save(secret);
-        return new SecretDTO(saved.getId(), saved.getCreatedAt(), saved.getExpiresAt(), saved.getConsumedAt(), saved.getRevokedAt(), saved.getContent(), saved.getPublicToken());
+        return new SecretDTO(saved.getId(), saved.getCreatedAt(), saved.getExpiresAt(), saved.getConsumedAt(), saved.getRevokedAt(), secretDTO.content(), saved.getPublicToken());
     }
 
     @Override
@@ -40,7 +43,8 @@ public class SecretServiceImpl implements ISecretService {
         UUID userId = iuserService.findUserIdBySubject(auth0Subject);
         List<Secret> secrets = secretRepository.findByUserIdOrderByCreatedAtDesc(userId);
         for(Secret s: secrets) {
-            secretDTOS.add(new SecretDTO(s.getId(), s.getCreatedAt(),s.getExpiresAt(), s.getConsumedAt(), s.getRevokedAt(), s.getContent(),s.getPublicToken()));
+            String decryptedContent = secretEncryptionService.decrypt(s.getContent());
+            secretDTOS.add(new SecretDTO(s.getId(), s.getCreatedAt(),s.getExpiresAt(), s.getConsumedAt(), s.getRevokedAt(), decryptedContent,s.getPublicToken()));
         }
         return secretDTOS;
     }
@@ -51,7 +55,8 @@ public class SecretServiceImpl implements ISecretService {
         String auth0Subject = authentication.getName();
         UUID userId = iuserService.findUserIdBySubject(auth0Subject);
         if(!secret.getUserId().equals(userId)) throw new SecretNotFoundException();
-        return new SecretDTO(secret.getId(),secret.getCreatedAt(),secret.getExpiresAt(), secret.getConsumedAt(), secret.getRevokedAt(), secret.getContent(),secret.getPublicToken());
+        String decryptedContent = secretEncryptionService.decrypt(secret.getContent());
+        return new SecretDTO(secret.getId(),secret.getCreatedAt(),secret.getExpiresAt(), secret.getConsumedAt(), secret.getRevokedAt(), decryptedContent,secret.getPublicToken());
 
     }
 
@@ -72,8 +77,8 @@ public class SecretServiceImpl implements ISecretService {
             throw new SecretNotFoundException();
         }
         Secret secret = secretRepository.findByPublicToken(publicToken).orElseThrow(() -> new SecretNotFoundException());
-
-        return new PublicSecretDTO(secret.getContent());
+        String decryptedContent = secretEncryptionService.decrypt(secret.getContent());
+        return new PublicSecretDTO(decryptedContent);
     }
 
 
