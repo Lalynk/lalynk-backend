@@ -26,7 +26,7 @@ public class Secret {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    @Column(name = "expires_at")
+    @Column(name = "expires_at", nullable = false)
     private Instant expiresAt;
 
     @Column(name = "consumed_at")

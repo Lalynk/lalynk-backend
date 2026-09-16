@@ -32,6 +32,8 @@ public class AuthController {
         }
         OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
         iUserService.getOrCreateUser(oidcUser.getSubject(), oidcUser.getEmail());
+        System.out.println("Authorities: " + authentication.getAuthorities());
+        System.out.println("principal: " + authentication.getPrincipal());
         return new AuthDTO(true, oidcUser.getSubject(), oidcUser.getEmail());
     }
 

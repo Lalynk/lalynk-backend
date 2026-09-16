@@ -3,6 +3,9 @@ import com.lalynk.lalynk_backend.secrets.*;
 import com.lalynk.lalynk_backend.users.IUserService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +19,9 @@ public class SecretServiceImpl implements ISecretService {
     private final SecretTokenGenerator secretTokenGenerator;
     private final SecretEncryptionService secretEncryptionService;
 
+    private static final long DEFAULT_EXPIRATION_DAYS = 7;
+    private static final long MAX_EXPIRATION_DAYS = 30;
+
     public SecretServiceImpl(SecretRepository secretRepository, IUserService iUserService, SecretTokenGenerator secretTokenGenerator, SecretEncryptionService secretEncryptionService){
         this.iuserService = iUserService;
         this.secretRepository = secretRepository;
@@ -25,9 +31,19 @@ public class SecretServiceImpl implements ISecretService {
 
     @Override
     public SecretDTO createSecret(CreateSecretRequest secretDTO, String auth0Subject) {
+
+        Instant expiresAt = secretDTO.expiresAt();
+        if(expiresAt == null) {
+            expiresAt = Instant.now().plus(DEFAULT_EXPIRATION_DAYS, ChronoUnit.DAYS);
+        }
+
+        if(expiresAt.isAfter(Instant.now().plus(MAX_EXPIRATION_DAYS, ChronoUnit.DAYS))) {
+            throw new IllegalArgumentException("Secret cannot expire mote than 30 days from now");
+        }
+
         UUID userId = iuserService.findUserIdBySubject(auth0Subject);
         String encryptedContent = secretEncryptionService.encrypt(secretDTO.content());
-        Secret secret = new Secret(userId, secretDTO.expiresAt(), encryptedContent, secretTokenGenerator.generate());
+        Secret secret = new Secret(userId, expiresAt, encryptedContent, secretTokenGenerator.generate());
         Secret saved = secretRepository.save(secret);
         return new SecretDTO(saved.getId(), saved.getCreatedAt(), saved.getExpiresAt(), saved.getConsumedAt(), saved.getRevokedAt(), secretDTO.content(), saved.getPublicToken());
     }
