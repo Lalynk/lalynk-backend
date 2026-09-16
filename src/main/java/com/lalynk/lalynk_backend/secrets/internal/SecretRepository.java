@@ -15,14 +15,26 @@ public interface SecretRepository extends JpaRepository<Secret, UUID> {
 
     @Modifying
     @Query("""
-    UPDATE Secret s
-    SET s.consumedAt = CURRENT_TIMESTAMP
-    WHERE s.publicToken = :publicToken
-      AND s.consumedAt IS NULL
-      AND s.revokedAt IS NULL
-      AND (s.expiresAt IS NULL OR s.expiresAt > CURRENT_TIMESTAMP)
-""")
+        UPDATE Secret s
+        SET s.consumedAt = CURRENT_TIMESTAMP
+        WHERE s.publicToken = :publicToken
+          AND s.consumedAt IS NULL
+          AND s.revokedAt IS NULL
+          AND (s.expiresAt IS NULL OR s.expiresAt > CURRENT_TIMESTAMP)
+    """)
     int consumeIfAvailable(@Param("publicToken") String publicToken);
 
+
+    @Modifying
+    @Query("""
+        UPDATE Secret s
+        SET s.revokedAt = CURRENT_TIMESTAMP
+        WHERE s.id = :secretId
+          AND s.userId = :userId
+          AND s.consumedAt IS NULL
+          AND s.revokedAt IS NULL 
+          AND (s.expiresAt IS NULL OR s.expiresAt > CURRENT_TIMESTAMP)
+    """)
+    int revokeIfAvailable(@Param("secretId") UUID secretId, @Param("userId") UUID userId);
 
 }

@@ -55,14 +55,13 @@ public class SecretServiceImpl implements ISecretService {
 
     }
 
+    @Transactional
     @Override
     public void revokeSecret(Authentication authentication, UUID secretId) {
-        Secret secret = secretRepository.findById(secretId).orElseThrow(() -> new SecretNotFoundException());
         String auth0Subject = authentication.getName();
         UUID userId = iuserService.findUserIdBySubject(auth0Subject);
-        if(!secret.getUserId().equals(userId)) throw new SecretNotFoundException();
-        secret.revoke();
-        secretRepository.save(secret);
+        int revoked = secretRepository.revokeIfAvailable(secretId, userId);
+        if(revoked == 0) throw new SecretNotFoundException();
     }
 
     @Transactional
