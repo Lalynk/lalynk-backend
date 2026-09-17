@@ -29,9 +29,7 @@ public class SecretEncryptionService {
 
     public String decrypt(String encrypted) {
         byte[] encryptedBytes = Base64.getUrlDecoder().decode(encrypted);
-
         byte[] plaintextBytes = encryptor.decrypt(encryptedBytes);
-
         return new String(plaintextBytes, StandardCharsets.UTF_8);
     }
 
