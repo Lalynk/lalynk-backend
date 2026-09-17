@@ -1,7 +1,5 @@
 package com.lalynk.lalynk_backend.shared;
 
-
-import com.lalynk.lalynk_backend.secrets.InvalidEncryptionKeyException;
 import com.lalynk.lalynk_backend.secrets.InvalidExpirationException;
 import com.lalynk.lalynk_backend.secrets.SecretLimitExceededException;
 import com.lalynk.lalynk_backend.secrets.SecretNotFoundException;
