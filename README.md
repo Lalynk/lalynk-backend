@@ -1,4 +1,4 @@
-# lalynk Backend
+# Lalynk Backend
 
 Backend service for Lalynk, a secure secret-sharing platform.
 
