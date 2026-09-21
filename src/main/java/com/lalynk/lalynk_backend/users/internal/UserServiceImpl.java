@@ -5,10 +5,8 @@ import com.lalynk.lalynk_backend.users.UserDTO;
 import com.lalynk.lalynk_backend.users.UserNotFoundException;
 
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import java.util.UUID;
 
 @Service
@@ -45,6 +43,5 @@ public class UserServiceImpl implements IUserService {
         User user = new User(email, auth0Subject);
         userRepository.save(user);
     }
-
 
 }

@@ -49,5 +49,4 @@ public class SecretController {
         return new ResponseEntity<>(iSecretService.openSecret(publicToken), HttpStatus.OK);
     }
 
-
 }

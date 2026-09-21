@@ -29,19 +29,14 @@ public class SecurityConfig {
                             "/auth/csrf").permitAll()
                     .anyRequest().authenticated())
 
-
             .oauth2Login(oauth2 ->
                     oauth2.defaultSuccessUrl(frontendUrl, true));
+        return http.build();
+    }
 
-    return http.build();
-}
-
-@Bean
-    public GrantedAuthoritiesMapper useAuthoritiesMapper() {
-        return new AuthoritiesMapper();
-}
-
-
-
+    @Bean
+        public GrantedAuthoritiesMapper useAuthoritiesMapper() {
+            return new AuthoritiesMapper();
+    }
 
 }

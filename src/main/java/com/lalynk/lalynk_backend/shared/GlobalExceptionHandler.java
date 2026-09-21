@@ -17,7 +17,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleUserAlreadyExists() {
         return new ResponseEntity<>(new ErrorResponse("User already exists"), HttpStatus.CONFLICT);
-
     }
 
     @ExceptionHandler(UserNotFoundException.class)
@@ -39,6 +38,5 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInvalidExpiration() {
         return new ResponseEntity<>(new ErrorResponse("Secret expiration cannot exceed 30 days"), HttpStatus.BAD_REQUEST);
     }
-
 
 }
