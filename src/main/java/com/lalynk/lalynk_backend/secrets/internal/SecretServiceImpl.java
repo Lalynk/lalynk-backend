@@ -78,10 +78,12 @@ public class SecretServiceImpl implements ISecretService {
 
     @Transactional
     @Override
-    public void revokeSecret(String auth0Subject, UUID secretId) {
+    public SecretSummaryDTO revokeSecret(String auth0Subject, UUID secretId) {
         UUID userId = iuserService.findUserIdBySubject(auth0Subject);
         int revoked = secretRepository.revokeIfAvailable(secretId, userId);
         if(revoked == 0) throw new SecretNotFoundException();
+        Secret secret = secretRepository.findById(secretId).orElseThrow(() -> new SecretNotFoundException());
+        return new SecretSummaryDTO(secret.getId(), secret.getCreatedAt(), secret.getExpiresAt(), secret.getConsumedAt(), secret.getRevokedAt(), secret.getPublicToken());
     }
 
     @Transactional

@@ -39,9 +39,8 @@ public class SecretController {
     }
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/{id}/revoke")
-    public ResponseEntity<Void> revokeSecret(Authentication authentication, @PathVariable UUID id) {
-        iSecretService.revokeSecret(authentication.getName(), id);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<SecretSummaryDTO> revokeSecret(Authentication authentication, @PathVariable UUID id) {
+        return new ResponseEntity<>(iSecretService.revokeSecret(authentication.getName(), id), HttpStatus.OK);
     }
 
     @GetMapping("/public/{publicToken}")

@@ -32,7 +32,7 @@ public class SecurityConfig {
                     .anyRequest().authenticated())
 
             .oauth2Login(oauth2 ->
-                    oauth2.defaultSuccessUrl(frontendUrl, true).authorizationEndpoint(endpoint ->
+                    oauth2.defaultSuccessUrl(frontendUrl+"/dashboard", true).authorizationEndpoint(endpoint ->
                             endpoint.authorizationRequestResolver(authorizationRequestResolver))
 
             );
