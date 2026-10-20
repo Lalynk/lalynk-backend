@@ -127,8 +127,13 @@ public class SecretServiceTest {
         String auth0Subject = "abc|123";
         UUID secretId = UUID.randomUUID();
 
+        Instant expiresAt = Instant.now().plus(7, ChronoUnit.DAYS);
+
+        Secret secret = new Secret(userId, expiresAt, "encrypted-content", "121212");
+
         when(iUserService.findUserIdBySubject(auth0Subject)).thenReturn(userId);
         when(secretRepository.revokeIfAvailable(secretId, userId)).thenReturn(1);
+        when(secretRepository.findById(secretId)).thenReturn(Optional.of(secret));
 
         assertDoesNotThrow(()-> secretService.revokeSecret(auth0Subject, secretId));
     }
